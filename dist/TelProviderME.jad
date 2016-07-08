@@ -1,0 +1,8 @@
+MIDlet-1: PhoneBook, , telproviderme.PhoneBook
+MIDlet-Jar-Size: 23984
+MIDlet-Jar-URL: TelProviderME.jar
+MIDlet-Name: TelProviderME
+MIDlet-Vendor: Vendor
+MIDlet-Version: 2.0
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.0
