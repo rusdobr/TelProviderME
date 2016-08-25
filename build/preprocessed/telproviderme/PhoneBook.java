@@ -62,8 +62,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
 
     private List mainScr;
 
-    private String[] mainScrChoices = {"Search", "Add New", "Browse",
-        "Options"};
+    private String[] mainScrChoices = {"Search", "Add New", "Browse", "Favorites",
+        "Options", "Testdata"};
 
     private Form searchScr;
 
@@ -84,6 +84,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
     private TextBox dialScr;
 
     private int sortOrder = 1;
+   
 
     /**
      * Public no-argument constructor. Called by the system to instantiate our
@@ -102,8 +103,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
         cmdSearchNetwork = new Command("Network", Command.SCREEN, 4);
         cmdSearchLocal = new Command("Local", Command.SCREEN, 3);
 
-        //alert = new Alert("", "", null, AlertType.INFO);
-        //alert.setTimeout(2000);
+        alert = new Alert("", "", null, AlertType.INFO);
+        alert.setTimeout(2000);
         try {
             addrBook = RecordStore.openRecordStore("TheAddressBook", true);
         } catch (RecordStoreException e) {
@@ -362,31 +363,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
      */
     public void commandAction(Command c, Displayable d) {
         if (d == mainScr) {
-            // Handle main sceen
-            if (c == cmdExit) {
-                midletExit(); // exit
-            } else if ((c == List.SELECT_COMMAND) || (c == cmdSelect)) {
-                switch (mainScr.getSelectedIndex()) {
-                    case 0:
-                        // display search screen
-                        genSearchScr();
-                        break;
-                    case 1:
-                        // display name entry screen
-                        genEntryScr();
-                        break;
-                    case 2:
-                        // display all names
-                        genNameScr("Browse", null, null, true);
-                        break;
-                    case 3:
-                        // display option screen
-                        genOptionScr();
-                        break;
-                    default:
-                        displayAlert(ERROR, "Unexpected index!", mainScr);
-                }
-            }
+            processMainScrAction(c);
         } else if (d == nameScr) {
             // Handle a screen with names displayed, either
             // from a browse or a search
@@ -427,6 +404,38 @@ public class PhoneBook extends MIDlet implements CommandListener,
             if (c == cmdCancel) {
                 // display main screen
                 genMainScr();
+            }
+        }
+    }
+
+    private void processMainScrAction(Command c) {
+        // Handle main sceen
+        if (c == cmdExit) {
+            midletExit(); // exit
+        } else if ((c == List.SELECT_COMMAND) || (c == cmdSelect)) {
+            switch (mainScr.getSelectedIndex()) {
+                case 0:
+                    // display search screen
+                    genSearchScr();
+                    break;
+                case 1:
+                    // display name entry screen
+                    genEntryScr();
+                    break;
+                case 2:
+                    // display all names
+                    genNameScr("Browse", null, null, true);
+                    break;
+                case 3:
+                    // display favorites
+                    genNameScr("Favorites", null, null, true);
+                    break;
+                case 4:
+                    // display option screen
+                    genOptionScr();
+                    break;
+                default:
+                    displayAlert(ERROR, "Unexpected index!", mainScr);
             }
         }
     }

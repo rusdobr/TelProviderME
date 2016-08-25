@@ -103,8 +103,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
         cmdSearchNetwork = new Command("Network", Command.SCREEN, 4);
         cmdSearchLocal = new Command("Local", Command.SCREEN, 3);
 
-        //alert = new Alert("", "", null, AlertType.INFO);
-        //alert.setTimeout(2000);
+        alert = new Alert("", "", null, AlertType.INFO);
+        alert.setTimeout(2000);
         try {
             addrBook = RecordStore.openRecordStore("TheAddressBook", true);
         } catch (RecordStoreException e) {
