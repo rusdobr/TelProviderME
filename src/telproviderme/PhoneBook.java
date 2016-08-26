@@ -25,6 +25,9 @@ import javax.microedition.midlet.MIDlet;
 import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
+import ua.telnumberident.ruslan.ITelephoneProviderIdent;
+import ua.telnumberident.ruslan.PhoneProvider;
+import ua.telnumberident.ruslan.TelephoneNumberIdentUA;
 
 /**
  * This MIDlet implements a simple address book with the following
@@ -62,6 +65,13 @@ public class PhoneBook extends MIDlet implements CommandListener,
 
     private List mainScr;
 
+    private final static int SEARCH_INDEX = 0;
+    private final static int NEW_INDEX = 1;
+    private final static int BROWSE_INDEX = 2;
+    private final static int FAVORITES_INDEX = 3;
+    private final static int OPTIONS_INDEX = 4;
+    private final static int TESTDATA_INDEX = 5;
+    // TODO : add translation
     private String[] mainScrChoices = {"Search", "Add New", "Browse", "Favorites",
         "Options", "Testdata"};
 
@@ -84,6 +94,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
     private TextBox dialScr;
 
     private int sortOrder = 1;
+    
+    private ITelephoneProviderIdent phoneProvider;
    
 
     /**
@@ -92,6 +104,9 @@ public class PhoneBook extends MIDlet implements CommandListener,
      * open the address book.
      */
     public PhoneBook() {
+        
+        phoneProvider = TelephoneNumberIdentUA.createInstance();
+        
         display = Display.getDisplay(this);
 
         cmdAdd = new Command("Add", Command.OK, 1);
@@ -251,7 +266,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
      */
     private Screen genEntryScr() {
         if (entryScr == null) {
-            entryScr = new NewEntryForm("Add new");
+            entryScr = new NewEntryForm("Add new", phoneProvider);
             entryScr.addCommand(cmdCancel);
             entryScr.addCommand(cmdAdd);
             entryScr.setCommandListener(this);
@@ -306,9 +321,11 @@ public class PhoneBook extends MIDlet implements CommandListener,
                 while (re.hasNextElement()) {
                     byte[] b = re.nextRecord();
                     String pn = SimpleRecord.getPhoneNum(b);
+                    // TODO : translate provider name
                     nameScr.append(SimpleRecord.getFirstName(b) + " "
                             + SimpleRecord.getLastName(b) + " "
-                            + SimpleRecord.getPhoneNum(b), null);
+                            + SimpleRecord.getPhoneNum(b) + " "
+                            + SimpleRecord.getProvider(b), null);
                     phoneNums.addElement(pn);
                 }
             } catch (Exception e) {
@@ -346,8 +363,13 @@ public class PhoneBook extends MIDlet implements CommandListener,
         String f = record.getFirstName();
         String l = record.getLastName();
         String p = record.getPhoneNumber();
+        PhoneProvider provider = record.getPhoneProvider();
 
-        byte[] b = SimpleRecord.createRecord(f, l, p);
+        _addPhoneRecord(f, l, p, provider);
+    }
+
+    private void _addPhoneRecord(String f, String l, String p, PhoneProvider provider) {
+        byte[] b = SimpleRecord.createRecord(f, l, p, provider.toString());
         try {
             addrBook.addRecord(b, 0, b.length);
             displayAlert(INFO, "Record added", mainScr);
@@ -414,26 +436,31 @@ public class PhoneBook extends MIDlet implements CommandListener,
             midletExit(); // exit
         } else if ((c == List.SELECT_COMMAND) || (c == cmdSelect)) {
             switch (mainScr.getSelectedIndex()) {
-                case 0:
+                case SEARCH_INDEX:
                     // display search screen
                     genSearchScr();
                     break;
-                case 1:
+                case NEW_INDEX:
                     // display name entry screen
                     genEntryScr();
                     break;
-                case 2:
+                case BROWSE_INDEX:
                     // display all names
                     genNameScr("Browse", null, null, true);
                     break;
-                case 3:
+                case FAVORITES_INDEX:
                     // display favorites
                     genNameScr("Favorites", null, null, true);
                     break;
-                case 4:
+                case OPTIONS_INDEX:
                     // display option screen
                     genOptionScr();
                     break;
+                case TESTDATA_INDEX:
+                    // display option screen
+                    addTestData();
+                    break;
+
                 default:
                     displayAlert(ERROR, "Unexpected index!", mainScr);
             }
@@ -450,6 +477,13 @@ public class PhoneBook extends MIDlet implements CommandListener,
     public void itemStateChanged(Item item) {
         if (item == sortChoice) {
             sortOrder = sortChoice.getSelectedIndex();
+        }
+    }
+
+    private void addTestData() {
+        PhoneProvider[] providers = phoneProvider.getProviders();
+        for( int n = 0; n <  providers.length; ++n){
+            _addPhoneRecord("FirstName " + n, "LastName " + n, "3805019200" + (n*n), providers[n]);
         }
     }
 }

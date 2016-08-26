@@ -5,6 +5,8 @@
  */
 package telproviderme.Phonebook;
 
+import ua.telnumberident.ruslan.PhoneProvider;
+
 /**
  *
  * @author ruslan
@@ -32,10 +34,16 @@ public class PhonebookRecord {
     }
     private final String lastName;
     private final String phoneNumber;
+    private final PhoneProvider phoneProvider;
 
-    public PhonebookRecord(String firstName, String lastName, String phoneNumber) {
+    public PhoneProvider getPhoneProvider() {
+        return phoneProvider;
+    }
+
+    public PhonebookRecord(String firstName, String lastName, String phoneNumber, PhoneProvider phoneProvider) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
+        this.phoneProvider = phoneProvider;
     }
 }

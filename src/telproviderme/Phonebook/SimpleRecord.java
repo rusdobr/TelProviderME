@@ -22,8 +22,10 @@ public final class SimpleRecord {
     private final static int FIELD_LEN = 20;
 
     private final static int PHONE_INDEX = 40;
+    
+    private final static int PROVIDER_INDEX = 60;
 
-    private final static int MAX_REC_LEN = 60;
+    private final static int MAX_REC_LEN = 80;
 
     private static StringBuffer recBuf = new StringBuffer(MAX_REC_LEN);
 
@@ -45,11 +47,12 @@ public final class SimpleRecord {
      * return byte[] the newly created record first record field: first name
      * last record field: last name num record field: phone number
      */
-    public static byte[] createRecord(String first, String last, String num) {
+    public static byte[] createRecord(String first, String last, String num, String provider) {
         clearBuf();
         recBuf.insert(FIRST_NAME_INDEX, first);
         recBuf.insert(LAST_NAME_INDEX, last);
         recBuf.insert(PHONE_INDEX, num);
+        recBuf.insert(PROVIDER_INDEX, provider);
         recBuf.setLength(MAX_REC_LEN);
         return recBuf.toString().getBytes();
     }
@@ -76,5 +79,12 @@ public final class SimpleRecord {
      */
     public static String getPhoneNum(byte[] b) {
         return new String(b, PHONE_INDEX, FIELD_LEN).trim();
+    }
+    /**
+     * Extracts the first name field from a record. return String contains the
+     * first name field b the record to parse
+     */
+    public static String getProvider(byte[] b) {
+        return new String(b, PROVIDER_INDEX, FIELD_LEN).trim();
     }
 }

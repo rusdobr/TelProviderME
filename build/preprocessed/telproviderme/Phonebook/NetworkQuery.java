@@ -32,7 +32,7 @@ public class NetworkQuery implements RecordEnumeration {
 
     private StringBuffer buffer = new StringBuffer(60);
 
-    private String[] fields = new String[3];
+    private String[] fields = new String[4];
 
     private String empty = new String();
 
@@ -54,6 +54,7 @@ public class NetworkQuery implements RecordEnumeration {
      */
     public NetworkQuery(String firstname, String lastname, int sortorder) {
         HttpConnection c = null;
+                
         int ch;
         InputStream is = null;
         InputStreamReader reader;
@@ -86,6 +87,7 @@ public class NetworkQuery implements RecordEnumeration {
                 fields[0] = empty;
                 fields[1] = empty;
                 fields[2] = empty;
+                fields[3] = empty;
                 do {
                     buffer.setLength(0);
                     while ((ch = reader.read()) != -1 && (ch != ',')
@@ -109,7 +111,7 @@ public class NetworkQuery implements RecordEnumeration {
 
                 if (fields[0].length() > 0) {
                     results.addElement(SimpleRecord.createRecord(fields[0],
-                            fields[1], fields[2]));
+                            fields[1], fields[2], fields[3]));
                 }
             }
         } catch (Exception e) {
