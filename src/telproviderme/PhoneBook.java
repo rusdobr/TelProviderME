@@ -48,6 +48,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
     private Alert alert;
 
     private Command cmdAdd;
+    
+    private Command cmdDeposit;
 
     private Command cmdBack;
 
@@ -70,10 +72,11 @@ public class PhoneBook extends MIDlet implements CommandListener,
     private final static int BROWSE_INDEX = 2;
     private final static int FAVORITES_INDEX = 3;
     private final static int OPTIONS_INDEX = 4;
-    private final static int TESTDATA_INDEX = 5;
+    private final static int OPTIONS_DEPOSIT = 5;
+    private final static int TESTDATA_INDEX = 6;
     // TODO : add translation
     private String[] mainScrChoices = {"Search", "Add New", "Browse", "Favorites",
-        "Options", "Testdata"};
+        "Options", "Deposit", "Testdata"};
 
     private Form searchScr;
 
@@ -82,6 +85,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
     private TextField s_firstName;
 
     private NewEntryForm entryScr;
+    
+    private DepositForm depositScr;
 
     private List nameScr;
 
@@ -110,6 +115,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
         display = Display.getDisplay(this);
 
         cmdAdd = new Command("Add", Command.OK, 1);
+        cmdDeposit = new Command("Run", Command.OK, 1);
         cmdBack = new Command("Back", Command.BACK, 2);
         cmdCancel = new Command("Cancel", Command.BACK, 2);
         cmdDial = new Command("Dial", Command.OK, 1);
@@ -262,7 +268,6 @@ public class PhoneBook extends MIDlet implements CommandListener,
      * name, and one for phone number. These are used to capture data to add to
      * the address book.
      *
-     * @see AddressBookMIDlet#addEntry
      */
     private Screen genEntryScr() {
         if (entryScr == null) {
@@ -276,6 +281,22 @@ public class PhoneBook extends MIDlet implements CommandListener,
         return entryScr;
     }
 
+    /**
+     * Name/Phone number deposit screen
+     */
+    private Screen genDepositScr() {
+        if (depositScr == null) {
+            depositScr = new DepositForm("Deposit phone", phoneProvider);
+            depositScr.addCommand(cmdCancel);
+            depositScr.addCommand(cmdDeposit);
+            depositScr.setCommandListener(this);
+        }
+        depositScr.clean();
+        display.setCurrent(depositScr);
+        return depositScr;
+    }
+    
+    
     /**
      * Generates a list of first/last/phone numbers. Can be called as a result
      * of a browse command (genBrowseScr) or a search command (genSearchScr).
@@ -314,6 +335,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
             nameScr = new List(title, List.IMPLICIT);
             nameScr.addCommand(cmdBack);
             nameScr.addCommand(cmdDial);
+            nameScr.addCommand(cmdDeposit);
             nameScr.setCommandListener(this);
             phoneNums = new Vector(6);
 
@@ -367,6 +389,14 @@ public class PhoneBook extends MIDlet implements CommandListener,
 
         _addPhoneRecord(f, l, p, provider);
     }
+    
+    /**
+     * Add an entry to the address book. Called after the user selects the
+     * addCmd while in the genEntryScr screen.
+     */
+    private void addDeposit() {
+        DepositRecord record = depositScr.getDepositRecord();        
+    }        
 
     private void _addPhoneRecord(String f, String l, String p, PhoneProvider provider) {
         byte[] b = SimpleRecord.createRecord(f, l, p, provider.toString());
@@ -427,6 +457,15 @@ public class PhoneBook extends MIDlet implements CommandListener,
                 // display main screen
                 genMainScr();
             }
+        } else if (d == depositScr) {
+            // Handle the name entry screen
+            if (c == cmdCancel) {
+                // display main screen
+                genMainScr();
+            } else if (c == cmdDeposit) {
+                // display name entry screen
+                addDeposit();
+            }
         }
     }
 
@@ -455,6 +494,10 @@ public class PhoneBook extends MIDlet implements CommandListener,
                 case OPTIONS_INDEX:
                     // display option screen
                     genOptionScr();
+                    break;
+                case OPTIONS_DEPOSIT:
+                    // display deposit screen
+                    genDepositScr();
                     break;
                 case TESTDATA_INDEX:
                     // display option screen

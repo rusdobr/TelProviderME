@@ -7,10 +7,7 @@ package telproviderme;
 
 import javax.microedition.lcdui.Choice;
 import javax.microedition.lcdui.ChoiceGroup;
-import javax.microedition.lcdui.Command;
 import javax.microedition.lcdui.Form;
-import javax.microedition.lcdui.Item;
-import javax.microedition.lcdui.ItemCommandListener;
 import javax.microedition.lcdui.TextField;
 import telproviderme.Phonebook.PhonebookRecord;
 import ua.telnumberident.ruslan.ITelephoneProviderIdent;
@@ -20,7 +17,7 @@ import ua.telnumberident.ruslan.PhoneProvider;
  *
  * @author ruslan
  */
-public class NewEntryForm extends Form implements ItemCommandListener{
+public class NewEntryForm extends Form{
 
     private final TextField e_lastName;
 
@@ -30,7 +27,7 @@ public class NewEntryForm extends Form implements ItemCommandListener{
     
     private final ChoiceGroup e_operator;
     
-    private PhoneProvider[] providers;
+    private final PhoneProvider[] providers;
 
 
     NewEntryForm(String title, ITelephoneProviderIdent phoneProvider) {
@@ -50,8 +47,6 @@ public class NewEntryForm extends Form implements ItemCommandListener{
             e_operator.append(providers[n].toString(), null);
         }
 
-            
-        e_operator.setItemCommandListener(this);
         append(e_firstName);
         append(e_lastName);
         append(e_phoneNum);
@@ -72,8 +67,5 @@ public class NewEntryForm extends Form implements ItemCommandListener{
                 e_phoneNum.getString(),
                 providers[e_operator.getSelectedIndex()]);
     }
-
-    public void commandAction(Command c, Item item) {
-        throw new UnsupportedOperationException("Not supported yet." + c.getLabel()); //To change body of generated methods, choose Tools | Templates.
-    }
+    
 }

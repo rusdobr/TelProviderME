@@ -9,7 +9,7 @@ import javax.microedition.lcdui.Choice;
 import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.TextField;
-import telproviderme.Phonebook.PhonebookRecord;
+import telproviderme.Phonebook.DepositRecord;
 import ua.telnumberident.ruslan.ITelephoneProviderIdent;
 import ua.telnumberident.ruslan.PhoneProvider;
 
@@ -17,55 +17,54 @@ import ua.telnumberident.ruslan.PhoneProvider;
  *
  * @author ruslan
  */
-public class NewEntryForm extends Form{
-
-    private final TextField e_lastName;
-
-    private final TextField e_firstName;
+public class DepositForm extends Form{
 
     private final TextField e_phoneNum;
     
+    private final TextField e_amount;
+    
+    private final TextField e_mobycode;
+      
     private final ChoiceGroup e_operator;
     
     private final PhoneProvider[] providers;
 
 
-    NewEntryForm(String title, ITelephoneProviderIdent phoneProvider) {
+    DepositForm(String title, ITelephoneProviderIdent phoneProvider) {
         super(title);
-        providers = phoneProvider.getProviders();
-        
-        e_firstName = new TextField("First name:", "", PhonebookRecord.FN_LEN,
-                TextField.ANY);
-        e_lastName = new TextField("Last name:", "", PhonebookRecord.LN_LEN, TextField.ANY);
-        e_phoneNum = new TextField("Phone Number", "", PhonebookRecord.PN_LEN,
+        e_phoneNum = new TextField("Phone Number", "", DepositRecord.PN_LEN,
                 TextField.PHONENUMBER);
-                
+        providers = phoneProvider.getProviders();
         e_operator = new ChoiceGroup( "Operator", Choice.EXCLUSIVE);
         
         for(int  n = 0; n < providers.length; ++n ){
             // TODO : translation here
             e_operator.append(providers[n].toString(), null);
         }
-
-        append(e_firstName);
-        append(e_lastName);
+        e_amount = new TextField("Amount:", "", DepositRecord.AMOUNT_LEN,
+                TextField.DECIMAL);
+        e_mobycode = new TextField("Mobycode:", "", DepositRecord.MOBYCODE_LEN, TextField.NUMERIC);
+        
         append(e_phoneNum);
         append(e_operator);
+        append(e_amount);
+        append(e_mobycode);
     }
 
     public void clean() {
-        e_firstName.delete(0, e_firstName.size());
-        e_lastName.delete(0, e_lastName.size());
+        e_mobycode.delete(0, e_mobycode.size());
+        e_amount.delete(0, e_amount.size());
         e_phoneNum.delete(0, e_phoneNum.size());
         e_operator.setSelectedIndex(0, true);
 
     }
 
-    public PhonebookRecord getPhonebookRecord() {        
-        return new PhonebookRecord(e_firstName.getString(),
-                e_lastName.getString(),
-                e_phoneNum.getString(),
-                providers[e_operator.getSelectedIndex()]);
+    public DepositRecord getDepositRecord() {        
+        return new DepositRecord(e_phoneNum.getString(),
+            providers[e_operator.getSelectedIndex()],
+            Integer.valueOf(e_amount.getString()),
+            Integer.valueOf(e_mobycode.getString())
+        );
     }
-    
+
 }
