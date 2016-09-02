@@ -3,6 +3,7 @@
  */
 package telproviderme;
 
+import java.util.Hashtable;
 import java.util.Vector;
 import telproviderme.Phonebook.*;
 
@@ -25,6 +26,7 @@ import javax.microedition.midlet.MIDlet;
 import javax.microedition.rms.RecordEnumeration;
 import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
+import telproviderme.deposit.PortmoneScript;
 import ua.telnumberident.ruslan.ITelephoneProviderIdent;
 import ua.telnumberident.ruslan.PhoneProvider;
 import ua.telnumberident.ruslan.TelephoneNumberIdentUA;
@@ -50,7 +52,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
     private Command cmdAdd;
     
     private Command cmdDeposit;
-
+    
     private Command cmdBack;
 
     private Command cmdCancel;
@@ -97,6 +99,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
     private ChoiceGroup sortChoice;
 
     private TextBox dialScr;
+    
+    private TextBox depositText;
 
     private int sortOrder = 1;
     
@@ -335,7 +339,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
             nameScr = new List(title, List.IMPLICIT);
             nameScr.addCommand(cmdBack);
             nameScr.addCommand(cmdDial);
-            nameScr.addCommand(cmdDeposit);
+            //nameScr.addCommand(cmdDeposit);
             nameScr.setCommandListener(this);
             phoneNums = new Vector(6);
 
@@ -395,7 +399,37 @@ public class PhoneBook extends MIDlet implements CommandListener,
      * addCmd while in the genEntryScr screen.
      */
     private void addDeposit() {
-        DepositRecord record = depositScr.getDepositRecord();        
+        /*
+        Hashtable hashtable = new Hashtable();
+ 
+   // Adding key-value pairs to Hashtable
+   hashtable.put("A", "Apple");
+   hashtable.put("B", "Orange");
+   hashtable.put("C", "Mango");
+   hashtable.put("D", "Banana");
+   hashtable.put("E", "Grapes");
+   boolean keyFlag1 = hashtable.containsKey("A");
+   Hashtable op = new Hashtable();
+   op.put(PhoneProvider.VODAFONE, "1");
+   op.put("" + PhoneProvider.KIEVSTAR, "1");
+   PhoneProvider mts = new PhoneProvider(PhoneProvider.VODAFONE);
+    boolean keyFlag2 = op.containsKey(PhoneProvider.VODAFONE);
+    boolean keyFlag3 = op.containsKey("" + PhoneProvider.VODAFONE);
+    boolean keyFlag4 = op.containsKey(PhoneProvider.KIEVSTAR);
+    boolean keyFlag5 = op.containsKey(mts.toString());
+    String buffer = "Key A exists in Hashtable?: " + keyFlag1 + ":" + keyFlag2 + ":" + keyFlag3+ ":" + keyFlag4 + ":" + keyFlag5;
+        */
+        DepositRecord record = depositScr.getDepositRecord();
+        PortmoneScript script = new PortmoneScript();
+        depositText = new TextBox(
+                "Deposit",
+                //buffer,
+                script.get(record.getPhoneProvider(), record.getPhoneNumber(), record.getAmount(), record.getMobyCode()),
+                PortmoneScript.MAX_BUFFER_LEN*2,
+                TextField.ANY);
+        depositText.addCommand(cmdCancel);
+        depositText.setCommandListener(this);
+        display.setCurrent(depositText);
     }        
 
     private void _addPhoneRecord(String f, String l, String p, PhoneProvider provider) {
@@ -413,7 +447,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
      * This method implements a state machine that drives the MIDlet from one
      * state (screen) to the next.
      */
-    public void commandAction(Command c, Displayable d) {
+    public void commandAction(Command c, Displayable d) {        
         if (d == mainScr) {
             processMainScrAction(c);
         } else if (d == nameScr) {
@@ -452,18 +486,15 @@ public class PhoneBook extends MIDlet implements CommandListener,
                 genNameScr("Search Result", s_firstName.getString(), s_lastName
                         .getString(), c == cmdSearchLocal);
             }
-        } else if (d == dialScr) {
+        } else if (d == dialScr || d == depositText) {
             if (c == cmdCancel) {
                 // display main screen
                 genMainScr();
             }
         } else if (d == depositScr) {
-            // Handle the name entry screen
             if (c == cmdCancel) {
-                // display main screen
                 genMainScr();
             } else if (c == cmdDeposit) {
-                // display name entry screen
                 addDeposit();
             }
         }

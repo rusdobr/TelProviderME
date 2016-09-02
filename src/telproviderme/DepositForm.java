@@ -41,8 +41,7 @@ public class DepositForm extends Form{
             // TODO : translation here
             e_operator.append(providers[n].toString(), null);
         }
-        e_amount = new TextField("Amount:", "", DepositRecord.AMOUNT_LEN,
-                TextField.DECIMAL);
+        e_amount = new TextField("Amount:", "", DepositRecord.AMOUNT_LEN, TextField.NUMERIC);
         e_mobycode = new TextField("Mobycode:", "", DepositRecord.MOBYCODE_LEN, TextField.NUMERIC);
         
         append(e_phoneNum);

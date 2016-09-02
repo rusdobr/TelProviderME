@@ -29,6 +29,18 @@ public class DepositRecord {
     public PhoneProvider getPhoneProvider() {
         return phoneProvider;
     }
+    
+    public Integer getAmount(){
+        return amount;
+    }
+    
+    public Integer getMobyCode(){
+        return mobyCode;
+    }
+    
+    public PhoneNumber getPhoneNumber(){
+        return phoneNumber;
+    }
 
     public DepositRecord(String phoneNumber, PhoneProvider phoneProvider, Integer amount, Integer mobyCode) {
         this.amount = amount;
