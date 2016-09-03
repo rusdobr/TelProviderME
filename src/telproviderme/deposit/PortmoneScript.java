@@ -25,8 +25,8 @@ public class PortmoneScript {
     private final static String STEP_HEADER = "135";
     private final static char ENDING = '#';
     private final static Hashtable commissionMap = new Hashtable();
-    
-    public void PortmoneScript(){
+        
+    public PortmoneScript(){
         operatorsMap.put(PhoneProvider.VODAFONE, "1");
         operatorsMap.put(PhoneProvider.KIEVSTAR, "3");
         operatorsMap.put(PhoneProvider.LIFE, "4");
