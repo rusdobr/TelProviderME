@@ -42,10 +42,10 @@ public class DepositRecord {
         return phoneNumber;
     }
 
-    public DepositRecord(String phoneNumber, PhoneProvider phoneProvider, Integer amount, Integer mobyCode) {
+    public DepositRecord(PhoneNumber phoneNumber, PhoneProvider phoneProvider, Integer amount, Integer mobyCode) {
         this.amount = amount;
         this.mobyCode = mobyCode;
-        this.phoneNumber = new PhoneNumber(phoneNumber);
+        this.phoneNumber = phoneNumber;
         this.phoneProvider = phoneProvider;
     }
 }

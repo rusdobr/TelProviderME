@@ -28,6 +28,7 @@ import javax.microedition.rms.RecordStore;
 import javax.microedition.rms.RecordStoreException;
 import telproviderme.deposit.PortmoneScript;
 import ua.telnumberident.ruslan.ITelephoneProviderIdent;
+import ua.telnumberident.ruslan.PhoneNumber;
 import ua.telnumberident.ruslan.PhoneProvider;
 import ua.telnumberident.ruslan.TelephoneNumberIdentUA;
 
@@ -92,7 +93,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
 
     private List nameScr;
 
-    private Vector phoneNums;
+    private Vector phoneRecords;
 
     private Form optionScr;
 
@@ -288,14 +289,19 @@ public class PhoneBook extends MIDlet implements CommandListener,
     /**
      * Name/Phone number deposit screen
      */
-    private Screen genDepositScr() {
+    private Screen genDepositScr(boolean useSelected) {
         if (depositScr == null) {
             depositScr = new DepositForm("Deposit phone", phoneProvider);
             depositScr.addCommand(cmdCancel);
             depositScr.addCommand(cmdDeposit);
             depositScr.setCommandListener(this);
         }
-        depositScr.clean();
+        DepositRecord depositRec = null;
+        if (useSelected) {
+            depositRec = (DepositRecord) phoneRecords.elementAt(nameScr
+                .getSelectedIndex());
+        }        
+        depositScr.setDepositRecord(depositRec);
         display.setCurrent(depositScr);
         return depositScr;
     }
@@ -313,7 +319,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
         SimpleComparator sc;
         SimpleFilter sf = null;
         RecordEnumeration re;
-        phoneNums = null;
+        phoneRecords = null;
 
         if (local) {
             sc = new SimpleComparator(
@@ -339,20 +345,21 @@ public class PhoneBook extends MIDlet implements CommandListener,
             nameScr = new List(title, List.IMPLICIT);
             nameScr.addCommand(cmdBack);
             nameScr.addCommand(cmdDial);
-            //nameScr.addCommand(cmdDeposit);
+            nameScr.addCommand(cmdDeposit);
             nameScr.setCommandListener(this);
-            phoneNums = new Vector(6);
+            phoneRecords = new Vector(6);
 
             try {
                 while (re.hasNextElement()) {
                     byte[] b = re.nextRecord();
-                    String pn = SimpleRecord.getPhoneNum(b);
+                    String phoneNumber = SimpleRecord.getPhoneNum(b);
+                    String provider = SimpleRecord.getProvider(b);
                     // TODO : translate provider name
-                    nameScr.append(SimpleRecord.getFirstName(b) + " "
+                    nameScr.append(phoneNumber + " "
                             + SimpleRecord.getLastName(b) + " "
                             + SimpleRecord.getPhoneNum(b) + " "
-                            + SimpleRecord.getProvider(b), null);
-                    phoneNums.addElement(pn);
+                            + provider, null);
+                    phoneRecords.addElement(new DepositRecord(new PhoneNumber(phoneNumber), new PhoneProvider(provider), null, null));
                 }
             } catch (Exception e) {
                 displayAlert(ERROR, "Error while building name list: " + e,
@@ -373,8 +380,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
      * be implemented on a given implementation.
      */
     private void genDialScr() {
-        dialScr = new TextBox("Dialing", (String) phoneNums.elementAt(nameScr
-                .getSelectedIndex()), PhonebookRecord.PN_LEN, TextField.PHONENUMBER);
+        DepositRecord elem = (DepositRecord) phoneRecords.elementAt(nameScr.getSelectedIndex());
+        dialScr = new TextBox("Dialing", elem.getPhoneNumber().toString(), PhonebookRecord.PN_LEN, TextField.PHONENUMBER);
         dialScr.addCommand(cmdCancel);
         dialScr.setCommandListener(this);
         display.setCurrent(dialScr);
@@ -459,6 +466,9 @@ public class PhoneBook extends MIDlet implements CommandListener,
             } else if (c == cmdDial) {
                 // dial the phone screen
                 genDialScr();
+            } else if (c == cmdDeposit) {
+                // dial the phone screen
+                genDepositScr(true);
             }
         } else if (d == entryScr) {
             // Handle the name entry screen
@@ -528,7 +538,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
                     break;
                 case OPTIONS_DEPOSIT:
                     // display deposit screen
-                    genDepositScr();
+                    genDepositScr(false);
                     break;
                 case TESTDATA_INDEX:
                     // display option screen
