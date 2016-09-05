@@ -362,12 +362,15 @@ public class PhoneBook extends MIDlet implements CommandListener,
                     Integer amount = SimpleRecord.getAmount(b);
                     String firstName = SimpleRecord.getFirstName(b);
                     String lastName = SimpleRecord.getLastName(b);
+                    String favorite = SimpleRecord.getFavoirte(b);
                     // TODO : translate provider name
-                    nameScr.append(phoneNumber + " "
-                            + SimpleRecord.getLastName(b) + " "
-                            + SimpleRecord.getPhoneNum(b) + " "
+                    nameScr.append(favorite + " " 
+                            + phoneNumber + " "
+                            + lastName + " "
+                            + phoneNumber + " "
                             + provider, null);
-                    phoneRecords.addElement(new PhonebookRecord(recordId, firstName, lastName, phoneNumber, new PhoneProvider(provider), amount));
+                    phoneRecords.addElement(new PhonebookRecord(recordId, firstName, lastName, phoneNumber, new PhoneProvider(provider), amount,
+                    favorite));
                 }
             } catch (Exception e) {
                 displayAlert(ERROR, "Error while building name list: " + e,
@@ -406,7 +409,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
         String p = record.getPhoneNumber();
         PhoneProvider provider = record.getPhoneProvider();
 
-        _addPhoneRecord(f, l, p, provider, record.getAmount());
+        _addPhoneRecord(f, l, p, provider, record.getAmount(), PhonebookRecord.IS_NOT_FAVORITE);
     }
     
     private void deleteEntry() {
@@ -438,9 +441,9 @@ public class PhoneBook extends MIDlet implements CommandListener,
         display.setCurrent(depositText);
     }        
 
-    private void _addPhoneRecord(String f, String l, String p, PhoneProvider provider, Integer amount) {
+    private void _addPhoneRecord(String f, String l, String p, PhoneProvider provider, Integer amount, String favorite) {
         try {
-            byte[] b = SimpleRecord.createRecord(new Integer(addrBook.getNextRecordID()), f, l, p, provider.toString(), amount);
+            byte[] b = SimpleRecord.createRecord(new Integer(addrBook.getNextRecordID()), f, l, p, provider.toString(), amount, favorite);
             addrBook.addRecord(b, 0, b.length);
             displayAlert(INFO, "Record added", mainScr);
         } catch (RecordStoreException rse) {
@@ -577,7 +580,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
         }
         PhoneProvider[] providers = phoneProvider.getProviders();
         for( int n = 0; n <  providers.length; ++n){
-            _addPhoneRecord("FirstName " + n, "LastName " + n, "3805019200" + (n*n), providers[n], new Integer(4));
+            _addPhoneRecord("FirstName " + n, "LastName " + n, "3805019200" + (n*n), providers[n], new Integer(4), PhonebookRecord.IS_NOT_FAVORITE);
         }
     }
 }

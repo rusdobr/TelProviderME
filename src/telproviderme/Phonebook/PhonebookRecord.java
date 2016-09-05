@@ -20,7 +20,11 @@ public class PhonebookRecord {
     public static final int PN_LEN = 15;
     
     public static final int AMOUNT_LEN = 10;
-
+    
+    public static final String IS_FAVORITE = "*";
+    
+    public static final String IS_NOT_FAVORITE = " ";
+    
     private final String firstName;
 
     public int getId(){
@@ -41,22 +45,27 @@ public class PhonebookRecord {
     public Integer getAmount(){
         return amount;
     }
+    public String getFavorite(){
+        return favorite;
+    }
     private final Integer id;
     private final String lastName;
     private final String phoneNumber;
     private final PhoneProvider phoneProvider;
     private final Integer amount;
+    private final String favorite;
 
     public PhoneProvider getPhoneProvider() {
         return phoneProvider;
     }
 
-    public PhonebookRecord(Integer id, String firstName, String lastName, String phoneNumber, PhoneProvider phoneProvider, Integer amount) {
+    public PhonebookRecord(Integer id, String firstName, String lastName, String phoneNumber, PhoneProvider phoneProvider, Integer amount, String favorite) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.phoneNumber = phoneNumber;
         this.phoneProvider = phoneProvider;
         this.amount = amount;
+        this.favorite = favorite;
     }
 }

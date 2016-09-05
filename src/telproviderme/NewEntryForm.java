@@ -65,12 +65,13 @@ public class NewEntryForm extends Form{
 
     }
 
-    public PhonebookRecord getPhonebookRecord() {        
+    public PhonebookRecord getPhonebookRecord() {
         return new PhonebookRecord(null, e_firstName.getString(),
                 e_lastName.getString(),
                 e_phoneNum.getString(),
                 providers[e_operator.getSelectedIndex()],
-                Integer.valueOf(e_amount.getString())
+                Integer.valueOf(e_amount.getString()),
+                PhonebookRecord.IS_FAVORITE
         );
     }
     

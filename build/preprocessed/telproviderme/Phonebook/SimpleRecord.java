@@ -30,9 +30,13 @@ public final class SimpleRecord {
     
     private final static int AMOUNT_INDEX = PROVIDER_INDEX + FIELD_LEN;
     private final static int AMOUNT_LENGTH = 10;
+    
+    private final static int FAVORITE_INDEX = AMOUNT_INDEX + AMOUNT_LENGTH;
+    private final static int FAVORITE_LENGTH = 1;
 
-    private final static int MAX_REC_LEN = AMOUNT_INDEX + AMOUNT_LENGTH;
 
+    private final static int MAX_REC_LEN = FAVORITE_INDEX + FAVORITE_LENGTH;
+        
     private static StringBuffer recBuf = new StringBuffer(MAX_REC_LEN);
 
     // Don't let anyone instantiate this class
@@ -53,7 +57,7 @@ public final class SimpleRecord {
      * return byte[] the newly created record first record field: first name
      * last record field: last name num record field: phone number
      */
-    public static byte[] createRecord(Integer id, String first, String last, String num, String provider, Integer amount) {
+    public static byte[] createRecord(Integer id, String first, String last, String num, String provider, Integer amount, String favorite) {
         clearBuf();
         recBuf.insert(ID_INDEX, id);
         recBuf.insert(FIRST_NAME_INDEX, first);
@@ -61,6 +65,7 @@ public final class SimpleRecord {
         recBuf.insert(PHONE_INDEX, num);
         recBuf.insert(PROVIDER_INDEX, provider);
         recBuf.insert(AMOUNT_INDEX, amount);
+        recBuf.insert(FAVORITE_INDEX, favorite);
         recBuf.setLength(MAX_REC_LEN);
         return recBuf.toString().getBytes();
     }
@@ -106,5 +111,9 @@ public final class SimpleRecord {
     
     public static Integer getAmount(byte[] b) {
         return Integer.valueOf(new String(b, AMOUNT_INDEX, AMOUNT_LENGTH).trim());
+    }
+    
+    public static String getFavoirte(byte[] b) {
+        return new String(b, FAVORITE_INDEX, FAVORITE_LENGTH).trim();
     }
 }
