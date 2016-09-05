@@ -10,6 +10,7 @@ import javax.microedition.lcdui.ChoiceGroup;
 import javax.microedition.lcdui.Form;
 import javax.microedition.lcdui.TextField;
 import telproviderme.Phonebook.DepositRecord;
+import telproviderme.Phonebook.PhonebookRecord;
 import ua.telnumberident.ruslan.ITelephoneProviderIdent;
 import ua.telnumberident.ruslan.PhoneNumber;
 import ua.telnumberident.ruslan.PhoneProvider;
@@ -47,7 +48,7 @@ public class DepositForm extends Form{
             e_operator.append(providers[n].toString(), null);
         }
         e_amount = new TextField("Amount:", "", DepositRecord.AMOUNT_LEN, TextField.NUMERIC);
-        e_mobycode = new TextField("Mobycode:", "", DepositRecord.MOBYCODE_LEN, TextField.NUMERIC);
+        e_mobycode = new TextField("Mobycode:", "", DepositRecord.MOBYCODE_LEN, TextField.NUMERIC | TextField.PASSWORD);
         
         append(e_phoneNum);
         append(e_operator);
@@ -65,26 +66,33 @@ public class DepositForm extends Form{
 
     }
     
-    public void setDepositRecord(DepositRecord record){
+    public void setDepositRecord(PhonebookRecord record){
         clean();
         if (record == null) {
+            e_phoneNum.setConstraints(TextField.PHONENUMBER);
             return;
         }
         if (record.getPhoneNumber() != null){
-            phoneNumber = record.getPhoneNumber();
+            phoneNumber = new PhoneNumber(record.getPhoneNumber());
             e_phoneNum.setString(record.getPhoneNumber().toString());
-            e_phoneNum.setConstraints((e_phoneNum.getConstraints() & TextField.PHONENUMBER) | TextField.UNEDITABLE);
+            e_phoneNum.setConstraints(TextField.PHONENUMBER | TextField.UNEDITABLE);
         } else {
-            e_phoneNum.setConstraints(e_phoneNum.getConstraints() | TextField.PHONENUMBER);            
+            e_phoneNum.setConstraints(TextField.PHONENUMBER);
         }
         
-        if (record.getPhoneProvider() != null) {            
+        PhoneProvider recProvider = record.getPhoneProvider();
+        if (recProvider != null) {
             for(int  n = 0; n < providers.length; ++n ){
-                if (providers[n] == record.getPhoneProvider()) {
-                    phoneProvider = record.getPhoneProvider();
+                if (providers[n].equals(recProvider)) {
+                    phoneProvider = recProvider;
                     e_operator.setSelectedIndex(n, true);
+                    break;
                 }
             }
+        }
+        
+        if (record.getAmount() != null) {
+            e_amount.setString(record.getAmount().toString());
         }
     }
 

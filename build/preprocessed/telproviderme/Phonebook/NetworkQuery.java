@@ -88,6 +88,8 @@ public class NetworkQuery implements RecordEnumeration {
                 fields[1] = empty;
                 fields[2] = empty;
                 fields[3] = empty;
+                fields[4] = empty;
+                fields[5] = empty;
                 do {
                     buffer.setLength(0);
                     while ((ch = reader.read()) != -1 && (ch != ',')
@@ -110,8 +112,8 @@ public class NetworkQuery implements RecordEnumeration {
                 } while (ch != '\n');
 
                 if (fields[0].length() > 0) {
-                    results.addElement(SimpleRecord.createRecord(fields[0],
-                            fields[1], fields[2], fields[3]));
+                    results.addElement(SimpleRecord.createRecord(Integer.valueOf(fields[0]),
+                            fields[1], fields[2], fields[3], fields[4], Integer.valueOf(fields[5])));
                 }
             }
         } catch (Exception e) {

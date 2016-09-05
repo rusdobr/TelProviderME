@@ -54,6 +54,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
     
     private Command cmdDeposit;
     
+    private Command cmdDeleteRecord;
+    
     private Command cmdBack;
 
     private Command cmdCancel;
@@ -120,7 +122,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
         display = Display.getDisplay(this);
 
         cmdAdd = new Command("Add", Command.OK, 1);
-        cmdDeposit = new Command("Run", Command.OK, 1);
+        cmdDeposit = new Command("Deposit", Command.OK, 1);
+        cmdDeleteRecord = new Command("Delete", Command.OK, 1);        
         cmdBack = new Command("Back", Command.BACK, 2);
         cmdCancel = new Command("Cancel", Command.BACK, 2);
         cmdDial = new Command("Dial", Command.OK, 1);
@@ -296,12 +299,12 @@ public class PhoneBook extends MIDlet implements CommandListener,
             depositScr.addCommand(cmdDeposit);
             depositScr.setCommandListener(this);
         }
-        DepositRecord depositRec = null;
+        PhonebookRecord phonebookRec = null;
         if (useSelected) {
-            depositRec = (DepositRecord) phoneRecords.elementAt(nameScr
+            phonebookRec = (PhonebookRecord) phoneRecords.elementAt(nameScr
                 .getSelectedIndex());
         }        
-        depositScr.setDepositRecord(depositRec);
+        depositScr.setDepositRecord(phonebookRec);
         display.setCurrent(depositScr);
         return depositScr;
     }
@@ -346,20 +349,25 @@ public class PhoneBook extends MIDlet implements CommandListener,
             nameScr.addCommand(cmdBack);
             nameScr.addCommand(cmdDial);
             nameScr.addCommand(cmdDeposit);
+            nameScr.addCommand(cmdDeleteRecord);
             nameScr.setCommandListener(this);
             phoneRecords = new Vector(6);
 
             try {
                 while (re.hasNextElement()) {
                     byte[] b = re.nextRecord();
+                    Integer recordId = SimpleRecord.getId(b);
                     String phoneNumber = SimpleRecord.getPhoneNum(b);
                     String provider = SimpleRecord.getProvider(b);
+                    Integer amount = SimpleRecord.getAmount(b);
+                    String firstName = SimpleRecord.getFirstName(b);
+                    String lastName = SimpleRecord.getLastName(b);
                     // TODO : translate provider name
                     nameScr.append(phoneNumber + " "
                             + SimpleRecord.getLastName(b) + " "
                             + SimpleRecord.getPhoneNum(b) + " "
                             + provider, null);
-                    phoneRecords.addElement(new DepositRecord(new PhoneNumber(phoneNumber), new PhoneProvider(provider), null, null));
+                    phoneRecords.addElement(new PhonebookRecord(recordId, firstName, lastName, phoneNumber, new PhoneProvider(provider), amount));
                 }
             } catch (Exception e) {
                 displayAlert(ERROR, "Error while building name list: " + e,
@@ -380,8 +388,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
      * be implemented on a given implementation.
      */
     private void genDialScr() {
-        DepositRecord elem = (DepositRecord) phoneRecords.elementAt(nameScr.getSelectedIndex());
-        dialScr = new TextBox("Dialing", elem.getPhoneNumber().toString(), PhonebookRecord.PN_LEN, TextField.PHONENUMBER);
+        PhonebookRecord elem = (PhonebookRecord) phoneRecords.elementAt(nameScr.getSelectedIndex());
+        dialScr = new TextBox("Dialing", elem.getPhoneNumber(), PhonebookRecord.PN_LEN, TextField.PHONENUMBER);
         dialScr.addCommand(cmdCancel);
         dialScr.setCommandListener(this);
         display.setCurrent(dialScr);
@@ -398,34 +406,25 @@ public class PhoneBook extends MIDlet implements CommandListener,
         String p = record.getPhoneNumber();
         PhoneProvider provider = record.getPhoneProvider();
 
-        _addPhoneRecord(f, l, p, provider);
+        _addPhoneRecord(f, l, p, provider, record.getAmount());
+    }
+    
+    private void deleteEntry() {
+        PhonebookRecord elem = (PhonebookRecord) phoneRecords.elementAt(nameScr.getSelectedIndex());
+         try {
+            addrBook.deleteRecord(elem.getId());
+            displayAlert(INFO, "Record deleted", mainScr);
+            genMainScr();
+        } catch (RecordStoreException rse) {
+            displayAlert(ERROR, "Could not delete record" + rse, mainScr);
+        }        
     }
     
     /**
      * Add an entry to the address book. Called after the user selects the
      * addCmd while in the genEntryScr screen.
      */
-    private void addDeposit() {
-        /*
-        Hashtable hashtable = new Hashtable();
- 
-   // Adding key-value pairs to Hashtable
-   hashtable.put("A", "Apple");
-   hashtable.put("B", "Orange");
-   hashtable.put("C", "Mango");
-   hashtable.put("D", "Banana");
-   hashtable.put("E", "Grapes");
-   boolean keyFlag1 = hashtable.containsKey("A");
-   Hashtable op = new Hashtable();
-   op.put(PhoneProvider.VODAFONE, "1");
-   op.put("" + PhoneProvider.KIEVSTAR, "1");
-   PhoneProvider mts = new PhoneProvider(PhoneProvider.VODAFONE);
-    boolean keyFlag2 = op.containsKey(PhoneProvider.VODAFONE);
-    boolean keyFlag3 = op.containsKey("" + PhoneProvider.VODAFONE);
-    boolean keyFlag4 = op.containsKey(PhoneProvider.KIEVSTAR);
-    boolean keyFlag5 = op.containsKey(mts.toString());
-    String buffer = "Key A exists in Hashtable?: " + keyFlag1 + ":" + keyFlag2 + ":" + keyFlag3+ ":" + keyFlag4 + ":" + keyFlag5;
-        */
+    private void addDeposit() {      
         DepositRecord record = depositScr.getDepositRecord();
         PortmoneScript script = new PortmoneScript();
         depositText = new TextBox(
@@ -439,9 +438,9 @@ public class PhoneBook extends MIDlet implements CommandListener,
         display.setCurrent(depositText);
     }        
 
-    private void _addPhoneRecord(String f, String l, String p, PhoneProvider provider) {
-        byte[] b = SimpleRecord.createRecord(f, l, p, provider.toString());
+    private void _addPhoneRecord(String f, String l, String p, PhoneProvider provider, Integer amount) {
         try {
+            byte[] b = SimpleRecord.createRecord(new Integer(addrBook.getNextRecordID()), f, l, p, provider.toString(), amount);
             addrBook.addRecord(b, 0, b.length);
             displayAlert(INFO, "Record added", mainScr);
         } catch (RecordStoreException rse) {
@@ -469,6 +468,9 @@ public class PhoneBook extends MIDlet implements CommandListener,
             } else if (c == cmdDeposit) {
                 // dial the phone screen
                 genDepositScr(true);
+            } else if (c == cmdDeleteRecord) {
+                // dial the phone screen
+                deleteEntry();
             }
         } else if (d == entryScr) {
             // Handle the name entry screen
@@ -565,9 +567,17 @@ public class PhoneBook extends MIDlet implements CommandListener,
     }
 
     private void addTestData() {
+        String recordStoreName = "TheAddressBook";
+        try {
+            addrBook.closeRecordStore();
+            RecordStore.deleteRecordStore(recordStoreName);
+            addrBook = RecordStore.openRecordStore(recordStoreName, true);
+        } catch (RecordStoreException e) {
+            addrBook = null;
+        }
         PhoneProvider[] providers = phoneProvider.getProviders();
         for( int n = 0; n <  providers.length; ++n){
-            _addPhoneRecord("FirstName " + n, "LastName " + n, "3805019200" + (n*n), providers[n]);
+            _addPhoneRecord("FirstName " + n, "LastName " + n, "3805019200" + (n*n), providers[n], new Integer(4));
         }
     }
 }

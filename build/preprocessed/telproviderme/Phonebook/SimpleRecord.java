@@ -14,18 +14,24 @@ package telproviderme.Phonebook;
  * record. N.B. no synchronized access is provided
  */
 public final class SimpleRecord {
-
-    private final static int FIRST_NAME_INDEX = 0;
-
-    private final static int LAST_NAME_INDEX = 20;
+    
+    private final static int ID_INDEX = 0;
+    private final static int ID_LENGTH = 10;
 
     private final static int FIELD_LEN = 20;
-
-    private final static int PHONE_INDEX = 40;
     
-    private final static int PROVIDER_INDEX = 60;
+    private final static int FIRST_NAME_INDEX = ID_INDEX + ID_LENGTH;
 
-    private final static int MAX_REC_LEN = 80;
+    private final static int LAST_NAME_INDEX = FIRST_NAME_INDEX + FIELD_LEN;
+    
+    private final static int PHONE_INDEX = LAST_NAME_INDEX + FIELD_LEN;
+    
+    private final static int PROVIDER_INDEX = PHONE_INDEX + FIELD_LEN;
+    
+    private final static int AMOUNT_INDEX = PROVIDER_INDEX + FIELD_LEN;
+    private final static int AMOUNT_LENGTH = 10;
+
+    private final static int MAX_REC_LEN = AMOUNT_INDEX + AMOUNT_LENGTH;
 
     private static StringBuffer recBuf = new StringBuffer(MAX_REC_LEN);
 
@@ -47,16 +53,26 @@ public final class SimpleRecord {
      * return byte[] the newly created record first record field: first name
      * last record field: last name num record field: phone number
      */
-    public static byte[] createRecord(String first, String last, String num, String provider) {
+    public static byte[] createRecord(Integer id, String first, String last, String num, String provider, Integer amount) {
         clearBuf();
+        recBuf.insert(ID_INDEX, id);
         recBuf.insert(FIRST_NAME_INDEX, first);
         recBuf.insert(LAST_NAME_INDEX, last);
         recBuf.insert(PHONE_INDEX, num);
         recBuf.insert(PROVIDER_INDEX, provider);
+        recBuf.insert(AMOUNT_INDEX, amount);
         recBuf.setLength(MAX_REC_LEN);
         return recBuf.toString().getBytes();
     }
 
+    /**
+     * Extracts the ID field from a record. return Integer representing unique identifier 
+     * of inserted record
+     */
+    public static Integer getId(byte[] b) {
+        return Integer.valueOf(new String(b, ID_INDEX, ID_LENGTH).trim());
+    }
+    
     /**
      * Extracts the first name field from a record. return String contains the
      * first name field b the record to parse
@@ -86,5 +102,9 @@ public final class SimpleRecord {
      */
     public static String getProvider(byte[] b) {
         return new String(b, PROVIDER_INDEX, FIELD_LEN).trim();
+    }
+    
+    public static Integer getAmount(byte[] b) {
+        return Integer.valueOf(new String(b, AMOUNT_INDEX, AMOUNT_LENGTH).trim());
     }
 }
