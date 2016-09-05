@@ -88,7 +88,7 @@ public class PortmoneScript {
     public static String getPhoneNumber(PhoneNumber number) {
         String str = number.toString();
         int numDigits = 9;
-        return str.substring(str.length() - numDigits, numDigits);
+        return str.substring(Math.max(0, str.length() - numDigits));
     }
 
     private boolean hasComission(String operatorStr) {
