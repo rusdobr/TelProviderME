@@ -70,8 +70,8 @@ public class NewEntryForm extends Form{
                 e_lastName.getString(),
                 e_phoneNum.getString(),
                 providers[e_operator.getSelectedIndex()],
-                Integer.valueOf(e_amount.getString(),
-                PhonebookRecord.IS_FAVORITE)
+                Integer.valueOf(e_amount.getString()),
+                PhonebookRecord.IS_FAVORITE
         );
     }
     
