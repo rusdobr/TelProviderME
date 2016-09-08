@@ -5,6 +5,7 @@ package telproviderme;
 
 import java.util.Hashtable;
 import java.util.Vector;
+import javax.microedition.io.ConnectionNotFoundException;
 import telproviderme.Phonebook.*;
 
 import javax.microedition.lcdui.Alert;
@@ -64,6 +65,8 @@ public class PhoneBook extends MIDlet implements CommandListener,
     private Command cmdCancel;
 
     private Command cmdDial;
+    
+    private Command cmdDoDial;
 
     private Command cmdExit;
 
@@ -132,6 +135,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
         cmdBack = new Command("Back", Command.BACK, 2);
         cmdCancel = new Command("Cancel", Command.BACK, 2);
         cmdDial = new Command("Dial", Command.OK, 1);
+        cmdDoDial = new Command("Dial", Command.OK, 1);
         cmdExit = new Command("Exit", Command.EXIT, 2);
         cmdSelect = new Command("Select", Command.OK, 1);
         cmdSearchNetwork = new Command("Network", Command.SCREEN, 4);
@@ -460,6 +464,7 @@ public class PhoneBook extends MIDlet implements CommandListener,
                 PortmoneScript.MAX_BUFFER_LEN*2,
                 TextField.ANY);
         depositText.addCommand(cmdCancel);
+        depositText.addCommand(cmdDoDial);
         depositText.setCommandListener(this);
         display.setCurrent(depositText);
     }        
@@ -531,13 +536,15 @@ public class PhoneBook extends MIDlet implements CommandListener,
             if (c == cmdCancel) {
                 // display main screen
                 genMainScr();
+            } else if ( c == cmdDoDial) {
+                doDial(((TextBox) d).toString());
             }
         } else if (d == depositScr) {
             if (c == cmdCancel) {
                 genMainScr();
             } else if (c == cmdDeposit) {
                 addDeposit();
-            }
+            }                  
         }
     }
 
@@ -610,5 +617,13 @@ public class PhoneBook extends MIDlet implements CommandListener,
             _addPhoneRecord("FirstName " + n, "LastName " + n, "3805019200" + (n*n), providers[n], new Integer(4), PhonebookRecord.IS_NOT_FAVORITE);
         }
 */
+    }
+    
+    private void doDial(String number) {
+        try {
+            platformRequest("tel:" + number);
+        } catch (ConnectionNotFoundException ex) {
+           System.out.println(ex.getMessage());
+        }
     }
 }
